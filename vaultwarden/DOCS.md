@@ -30,7 +30,7 @@ comparison to installing any other Home Assistant app.
 1. Check the logs of the "Vaultwarden" app to see if everything
    went well and to get the admin token/password.
 1. Click the "OPEN WEB UI" button to open Vaultwarden.
-1. Add `/admin` to the URL to access the admin panel, e.g.,
+1. Open the admin panel by adding `/admin` to the URL of the app's port, e.g.,
    `http://hassio.local:7277/admin`. Log in using the admin token you got
    in step 4.
 1. The admin/token in the logs is only shown until it is saved or changed.
@@ -102,10 +102,31 @@ especially if running with limited resources.
 
 To set the limit, you can use this setting: 10MB would be `10485760`.
 
+## Ingress
+
+The web vault is available through Home Assistant Ingress: use the
+"OPEN WEB UI" button or enable "Show in sidebar". The port of the app keeps
+working next to it.
+
+- Home Assistant itself has to be opened over HTTPS, as the web vault refuses
+  to work without it. The `ssl` option of the app has no effect on Ingress.
+- Ingress needs a Home Assistant login, so the Bitwarden apps and browser
+  extensions cannot use it. Point those at the port of the app. If the web
+  vault is all you use, you can disable the port in the "Network" section and
+  set `ssl` to `false`.
+- Leave the "Domain URL" in the admin panel unset. Once it is set, Vaultwarden
+  hands out attachment and Send file downloads for that URL instead of the
+  Ingress one, and the web vault behind Ingress cannot fetch them.
+- A Send created in the web vault behind Ingress gets an Ingress link, which
+  only works for people who can log in to your Home Assistant.
+- The admin panel is reachable at `/admin` below the Ingress URL as well, but
+  the port of the app is the more convenient way to open it.
+- Behind Ingress the web vault shares its origin with the Home Assistant
+  frontend and all other apps using Ingress. Scripts running there, such as
+  custom frontend cards, can reach into an unlocked web vault.
+
 ## Known issues and limitations
 
-- This app cannot support Ingress at this time due to technical limitations
-  of the Bitwarden Vault web interface.
 - Some web browsers, like Chrome, disallow the use of Web Crypto APIs in
   insecure contexts. In this case, you might get an error like
   `Cannot read property 'importKey'`. To solve this problem, you need to enable

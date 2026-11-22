@@ -17,6 +17,12 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 COPY --from=vaultwarden /vaultwarden /opt/vaultwarden
 COPY --from=vaultwarden /web-vault /opt/web-vault
 
+# The web vault references some images relative to its source tree, which only
+# resolves when served from the root. Make them relative to the page, so they
+# load behind Ingress as well.
+RUN find /opt/web-vault -name '*.js' \
+        -exec sed -i -E 's#"(\.\./)+images/#"images/#g' {} +
+
 # add Nginx
 # hadolint ignore=DL3009
 RUN \
